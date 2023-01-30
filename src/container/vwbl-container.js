@@ -1,11 +1,11 @@
 import { createContainer } from 'unstated-next';
 import { useState } from 'react';
-import Web3 from 'web3';
-import { ManageKeyType, UploadContentType, UploadMetadataType, VWBL } from 'vwbl-sdk';
+import { ethers, utils } from 'ethers';
+import { ManageKeyType, UploadContentType, UploadMetadataType, VWBLEthers } from 'vwbl-sdk';
 
 const useVWBL = () => {
   const [userAddress, setUserAddress] = useState('');
-  const [web3, setWeb3] = useState();
+  const [ethersProvider, setEthersProvider] = useState();
   /* useVWBLの持つ変数にvwblインスタンスを追加 */
   const [vwbl, setVwbl] = useState();
 
@@ -19,26 +19,26 @@ const useVWBL = () => {
         console.log('MetaMask is installed!', ethereum);
       }
 
-      // ウォレット接続して、userAddressとweb3インスタンスのstateを保存
+      // ウォレット接続して、userAddressとethersProviderのstateを保存
       await ethereum.request({ method: 'eth_requestAccounts' });
-      const web3 = new Web3(ethereum);
-      const accounts = await web3.eth.getAccounts();
-      const currentAccount = accounts[0];
-      setWeb3(web3);
-      setUserAddress(currentAccount);
+      const provider = new ethers.providers.Web3Provider(ethereum);
+      const signer = provider.getSigner();
+      const account = await signer.getAddress();
+      setEthersProvider(provider);
+      setUserAddress(account);
 
       // 接続しているチェーンがMumbaiでない場合は、チェーンの変更をrequest
-      const connectedChainId = await web3.eth.getChainId();
+      const { chainId } = await provider.getNetwork();
       const properChainId = parseInt(process.env.REACT_APP_CHAIN_ID);
-      if (connectedChainId !== properChainId) {
+      if (chainId !== properChainId) {
         await ethereum.request({
           method: 'wallet_switchEthereumChain',
-          params: [{ chainId: web3.utils.toHex(properChainId) }],
+          params: [{ chainId: utils.hexValue(utils.hexlify(properChainId)) }],
         });
       }
 
       /* vwblインスタンス作成してstateを保存する処理 */
-      initVwbl(web3);
+      initVwbl(provider, signer);
     } catch (error) {
       if (error.code === 4001) {
         alert('Please connect Your Wallet.');
@@ -51,15 +51,15 @@ const useVWBL = () => {
 
   const disconnectWallet = () => {
     setUserAddress('');
-    setWeb3(undefined);
+    setEthersProvider(undefined);
     setVwbl(undefined);
   };
 
-  // Lesson-3
-  const initVwbl = (web3) => {
+  const initVwbl = (ethersProvider, ethersSigner) => {
     // vwblインスタンスの作成
-    const vwblInstance = new VWBL({
-      web3,
+    const vwblInstance = new VWBLEthers({
+      ethersProvider,
+      ethersSigner,
       contractAddress: process.env.REACT_APP_NFT_CONTRACT_ADDRESS,
       vwblNetworkUrl: process.env.REACT_APP_VWBL_NETWORK_URL,
       manageKeyType: ManageKeyType.VWBL_NETWORK_SERVER,
@@ -73,7 +73,7 @@ const useVWBL = () => {
 
   return {
     userAddress,
-    web3,
+    ethersProvider,
     vwbl,
     connectWallet,
     disconnectWallet,

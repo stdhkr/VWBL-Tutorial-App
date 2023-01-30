@@ -15,14 +15,14 @@ export const Create = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [isChecked, setIsChecked] = useState(false);
   const { isOpen, handleOpen } = useDisclosure();
-  /* VwblContainerから web3,vwbl,connectWallet を取得する */
-  const { web3, vwbl, connectWallet } = VwblContainer.useContainer()
+  /* VwblContainerから ethersProvider,vwbl,connectWallet を取得する */
+  const { ethersProvider, vwbl, connectWallet } = VwblContainer.useContainer()
 
   // Lesson-4
 
   const mintNft = async (data) => {
     setIsLoading(true);
-    if (!web3 || !vwbl) {
+    if (!ethersProvider || !vwbl) {
       alert('Your wallet is not connected. Please try again.');
       setIsLoading(false);
       await connectWallet();

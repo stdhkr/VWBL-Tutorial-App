@@ -12,7 +12,7 @@ export const Home = () => {
   const [tabIndex, setTabIndex] = useState(0);
   const [mintedNfts, setMintedNfts] = useState();
   const [ownedNfts, setOwnedNfts] = useState();
-  const { userAddress, web3, vwbl, connectWallet, disconnectWallet } = VwblContainer.useContainer(); /* web3, vwblを追加 */
+  const { userAddress, ethersProvider, vwbl, connectWallet, disconnectWallet } = VwblContainer.useContainer(); /* ethersProvider, vwblを追加 */
 
   // Lesson-5
   useEffect(() => {
@@ -20,7 +20,7 @@ export const Home = () => {
   }, [vwbl]); /* userAddressからvwblに変更 */
 
   const fetchNfts = async () => {
-    if (!userAddress || !web3 || !vwbl) {
+    if (!userAddress || !ethersProvider || !vwbl) {
       console.log('Now your wallet is not connected. Please connect your wallet.');
       return;
     }
