@@ -23,3 +23,12 @@ Let's become a more advanced NFT engineer with a VWBL NFT, which allows only tho
 - Lesson-0：start here for step-by-step learning
 
 - Lesson-1 ~ Lesson-7：a completed version of each lesson in the above materials.
+
+## Advanced 7
+## 審査をお願いしたい場所
+
+### src/container/vwbl-container.js
+- 60行目 VWBLEthers
+- 24行目から41行目 web3.jsをethersに変更
+
+
